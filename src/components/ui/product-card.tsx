@@ -3,6 +3,8 @@ import { Button } from "./button";
 import { Badge } from "./badge";
 import { Card, CardContent } from "./card";
 import { useState } from "react";
+import { useCart } from "@/contexts/CartContext";
+import { useFavorites } from "@/contexts/FavoritesContext";
 
 interface ProductCardProps {
   id: string;
@@ -16,6 +18,8 @@ interface ProductCardProps {
   isOnSale?: boolean;
   isWishlisted?: boolean;
   stock: number;
+  description?: string;
+  image_url?: string;
 }
 
 const ProductCard = ({ 
@@ -29,18 +33,44 @@ const ProductCard = ({
   reviewCount, 
   isOnSale, 
   isWishlisted = false,
-  stock 
+  stock,
+  description,
+  image_url
 }: ProductCardProps) => {
-  const [wishlisted, setWishlisted] = useState(isWishlisted);
+  const { addToCart } = useCart();
+  const { addToFavorites, removeFromFavorites, isFavorite } = useFavorites();
   const [isHovered, setIsHovered] = useState(false);
 
+  const wishlisted = isFavorite(id);
+
   const toggleWishlist = () => {
-    setWishlisted(!wishlisted);
+    if (wishlisted) {
+      removeFromFavorites(id);
+    } else {
+      addToFavorites({
+        id,
+        name,
+        price,
+        image_url: image_url || image,
+        stock_quantity: stock,
+        description: description || '',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      });
+    }
   };
 
-  const addToCart = () => {
-    // Cart functionality will be implemented when backend is connected
-    console.log(`Adding product ${id} to cart`);
+  const handleAddToCart = () => {
+    addToCart({
+      id,
+      name,
+      price,
+      image_url: image_url || image,
+      stock_quantity: stock,
+      description: description || '',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    });
   };
 
   return (
@@ -99,7 +129,7 @@ const ProductCard = ({
           isHovered && stock > 0 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
         }`}>
           <Button 
-            onClick={addToCart}
+            onClick={handleAddToCart}
             className="w-full bg-luxury-purple hover:bg-luxury-purple-light text-white shadow-lg"
             disabled={stock === 0}
           >
