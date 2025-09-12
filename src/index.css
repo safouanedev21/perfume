@@ -1,0 +1,141 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Perfume E-commerce Design System - Luxury & Elegance */
+
+@layer base {
+  :root {
+    --background: 45 15% 98%;
+    --foreground: 280 15% 15%;
+
+    --card: 45 15% 100%;
+    --card-foreground: 280 15% 15%;
+
+    --popover: 45 15% 100%;
+    --popover-foreground: 280 15% 15%;
+
+    /* Luxury deep purple primary */
+    --primary: 280 65% 25%;
+    --primary-foreground: 45 15% 98%;
+
+    /* Warm cream secondary */
+    --secondary: 45 25% 92%;
+    --secondary-foreground: 280 15% 15%;
+
+    /* Soft muted tones */
+    --muted: 45 15% 95%;
+    --muted-foreground: 280 15% 45%;
+
+    /* Golden accent for luxury feel */
+    --accent: 45 85% 55%;
+    --accent-foreground: 280 15% 15%;
+
+    --destructive: 0 65% 50%;
+    --destructive-foreground: 45 15% 98%;
+
+    --border: 45 15% 88%;
+    --input: 45 15% 88%;
+    --ring: 280 65% 25%;
+
+    /* Custom luxury colors */
+    --luxury-gold: 45 85% 55%;
+    --luxury-gold-light: 45 85% 65%;
+    --luxury-gold-dark: 45 85% 45%;
+    --luxury-purple: 280 65% 25%;
+    --luxury-purple-light: 280 65% 35%;
+    --luxury-purple-dark: 280 65% 15%;
+    --luxury-cream: 45 25% 95%;
+    --luxury-cream-dark: 45 25% 88%;
+
+    /* Gradients */
+    --gradient-luxury: linear-gradient(135deg, hsl(var(--luxury-purple)), hsl(var(--luxury-purple-light)));
+    --gradient-gold: linear-gradient(135deg, hsl(var(--luxury-gold-dark)), hsl(var(--luxury-gold)));
+    --gradient-subtle: linear-gradient(180deg, hsl(var(--background)), hsl(var(--luxury-cream)));
+
+    /* Shadows */
+    --shadow-luxury: 0 10px 40px -15px hsl(var(--luxury-purple) / 0.3);
+    --shadow-gold: 0 8px 30px -10px hsl(var(--luxury-gold) / 0.4);
+    --shadow-subtle: 0 4px 20px -5px hsl(var(--foreground) / 0.1);
+
+    /* Animations */
+    --transition-luxury: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-smooth: all 0.3s ease-in-out;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 280 15% 8%;
+    --foreground: 45 15% 95%;
+
+    --card: 280 15% 10%;
+    --card-foreground: 45 15% 95%;
+
+    --popover: 280 15% 10%;
+    --popover-foreground: 45 15% 95%;
+
+    --primary: 45 85% 65%;
+    --primary-foreground: 280 15% 8%;
+
+    --secondary: 280 15% 15%;
+    --secondary-foreground: 45 15% 95%;
+
+    --muted: 280 15% 15%;
+    --muted-foreground: 280 15% 65%;
+
+    --accent: 280 65% 35%;
+    --accent-foreground: 45 15% 95%;
+
+    --destructive: 0 65% 60%;
+    --destructive-foreground: 45 15% 95%;
+
+    --border: 280 15% 20%;
+    --input: 280 15% 20%;
+    --ring: 45 85% 65%;
+
+    /* Dark mode luxury colors */
+    --luxury-gold: 45 85% 65%;
+    --luxury-gold-light: 45 85% 75%;
+    --luxury-gold-dark: 45 85% 55%;
+    --luxury-purple: 280 65% 35%;
+    --luxury-purple-light: 280 65% 45%;
+    --luxury-purple-dark: 280 65% 25%;
+    --luxury-cream: 280 15% 12%;
+    --luxury-cream-dark: 280 15% 8%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
