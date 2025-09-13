@@ -1,13 +1,12 @@
-import { Search, ShoppingBag, User, Menu, Heart, X } from "lucide-react";
+import { Search, User, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import CartPanel from "@/components/ui/cart-panel";
+import FavoritesPanel from "@/components/ui/favourites-panel";
 import { useState } from "react";
 
 const Header = () => {
-  const [cartCount, setCartCount] = useState(3);
-  const [wishlistCount, setWishlistCount] = useState(2);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -57,36 +56,12 @@ const Header = () => {
               </Button>
             </div>
             <div className="hidden md:flex items-center gap-2">
-              {/* Wishlist */}
-              <Button variant="ghost" size="icon" className="relative">
-                <Heart className="h-5 w-5" />
-                {wishlistCount > 0 && (
-                  <Badge className="absolute -top-1 -right-1 h-5 w-5 p-2 text-xs bg-luxury-gold text-luxury-purple-dark">
-                   {wishlistCount}
-                  </Badge>
-                )}
-              </Button>
+              {/* Favorites */}
+              <FavoritesPanel />
               {/* Cart */}
-              <Button variant="ghost" size="icon" className="relative">
-                <ShoppingBag className="h-5 w-5" />
-                {cartCount > 0 && (
-                  <Badge className="absolute -top-1 -right-1 h-5 w-5 p-2 text-xs bg-luxury-gold text-luxury-purple-dark">
-                    {cartCount}
-                  </Badge>
-                )}
-              </Button>
+              <CartPanel />
               {/* Theme toggle */}
               <ThemeToggle />
-              {/* User account */}
-              <Button variant="ghost" size="icon">
-                <User className="h-5 w-5" />
-              </Button>
-              {/* Admin link */}
-              <Button variant="ghost" size="sm" asChild>
-                <a href="/admin" className="text-xs">
-                  Admin
-                </a>
-              </Button>
             </div>
           </div>
         </div>
@@ -106,29 +81,11 @@ const Header = () => {
                 <a href="/products?category=homme" className="py-2 text-lg font-medium border-b border-gray-200 dark:border-gray-700">Hommes</a>
                 <a href="/products?category=unisexe" className="py-2 text-lg font-medium border-b border-gray-200 dark:border-gray-700">Unisexe</a>
                 <a href="/products" className="py-2 text-lg font-medium border-b border-gray-200 dark:border-gray-700">Tous les Parfums</a>
-                <a href="/admin" className="py-2 text-lg font-medium border-b border-gray-200 dark:border-gray-700">Admin</a>
                 <a href="/products?sale=true" className="py-2 text-lg font-medium border-b border-gray-200 dark:border-gray-700">Offres</a>
                 <div className="flex gap-2 mt-4">
-                  <Button variant="ghost" size="icon" className="relative">
-                    <Heart className="h-5 w-5" />
-                    {wishlistCount > 0 && (
-                      <Badge className="absolute -top-1 -right-1 h-5 w-5 p-2 text-xs bg-luxury-gold text-luxury-purple-dark">
-                        {wishlistCount}
-                      </Badge>
-                    )}
-                  </Button>
-                  <Button variant="ghost" size="icon" className="relative">
-                    <ShoppingBag className="h-5 w-5" />
-                    {cartCount > 0 && (
-                      <Badge className="absolute -top-1 -right-1 h-5 w-5 p-2 text-xs bg-luxury-gold text-luxury-purple-dark">
-                        {cartCount}
-                      </Badge>
-                    )}
-                  </Button>
+                  <FavoritesPanel />
+                  <CartPanel />
                   <ThemeToggle />
-                  <Button variant="ghost" size="icon">
-                    <User className="h-5 w-5" />
-                  </Button>
                 </div>
               </nav>
             </div>

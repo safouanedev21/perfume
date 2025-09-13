@@ -35,9 +35,6 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     { name: 'Tableau de bord', href: '/admin/dashboard', icon: LayoutDashboard },
     { name: 'Produits', href: '/admin/products', icon: Package },
     { name: 'Commandes', href: '/admin/orders', icon: ShoppingCart },
-    { name: 'Clients', href: '/admin/customers', icon: Users },
-    { name: 'Rapports', href: '/admin/reports', icon: BarChart3 },
-    { name: 'Paramètres', href: '/admin/settings', icon: Settings },
   ];
 
   return (
@@ -105,10 +102,10 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
               </span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">
+              <p className="text-sm font-medium text-gray-900 truncate dark:text-teal-50">
                 {user?.email}
               </p>
-              <p className="text-xs text-gray-500">Administrateur</p>
+              <p className="text-xs text-gray-500 dark:text-teal-50">Administrateur</p>
             </div>
           </div>
           <Button
@@ -138,10 +135,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
             </Button>
             
             <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                <AlertTriangle className="h-4 w-4 text-yellow-500" />
-                <span>Stock faible détecté</span>
-              </div>
+              
               <ThemeToggle />
             </div>
           </div>

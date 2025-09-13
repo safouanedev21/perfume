@@ -1,147 +1,138 @@
-import { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
-import { Search, Filter, Grid, List, SlidersHorizontal } from "lucide-react";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
-import ProductCard from "@/components/ui/product-card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
-import { supabase } from "@/integrations/supabase/client";
-import type { Tables } from "@/integrations/supabase/types";
+"use client"
+
+import { useState, useEffect, useMemo } from "react"
+import { useLocation } from "react-router-dom"
+import { Search, Grid, List, SlidersHorizontal } from "lucide-react"
+import Header from "@/components/layout/Header"
+import Footer from "@/components/layout/Footer"
+import ProductCard from "@/components/ui/product-card"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Label } from "@/components/ui/label"
+import { Slider } from "@/components/ui/slider"
+import { supabase } from "@/integrations/supabase/client"
+import type { Tables } from "@/integrations/supabase/types"
 
 // Extended product type for display
-interface Product extends Tables<'products'> {
-  brand?: string;
-  originalPrice?: number;
-  rating?: number;
-  reviewCount?: number;
-  isOnSale?: boolean;
-  category?: string;
+interface Product extends Tables<"products"> {
+  brand?: string
+  isOnSale?: boolean
+  category?: string
 }
 
-const brands = ["Toutes", "Chanel", "Dior", "Lancôme", "Yves Saint Laurent", "Giorgio Armani", "Carolina Herrera"];
-
 const Products = () => {
-  const location = useLocation();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("tous");
-  const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
-  const [priceRange, setPriceRange] = useState([0, 30000]);
-  const [sortBy, setSortBy] = useState("popularity");
-  const [viewMode, setViewMode] = useState("grid");
-  const [showFilters, setShowFilters] = useState(false);
-  const [allProducts, setAllProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const location = useLocation()
+  const [searchTerm, setSearchTerm] = useState("")
+  const [selectedCategory, setSelectedCategory] = useState("tous")
+  const [selectedBrands, setSelectedBrands] = useState<string[]>([])
+  const [priceRange, setPriceRange] = useState([0, 30000])
+  const [sortBy, setSortBy] = useState("popularity")
+  const [viewMode, setViewMode] = useState("grid")
+  const [showFilters, setShowFilters] = useState(false)
+  const [allProducts, setAllProducts] = useState<Product[]>([])
+  const [availableBrands, setAvailableBrands] = useState<string[]>([])
+  const [loading, setLoading] = useState(true)
 
   // Sync selectedCategory with URL query param and search term
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const category = params.get("category");
-    const search = params.get("search");
-    
+    const params = new URLSearchParams(location.search)
+    const category = params.get("category")
+    const search = params.get("search")
+
     if (category === "homme" || category === "femme" || category === "unisexe") {
-      setSelectedCategory(category);
+      setSelectedCategory(category)
     } else {
-      setSelectedCategory("tous");
+      setSelectedCategory("tous")
     }
-    
+
     if (search) {
-      setSearchTerm(search);
+      setSearchTerm(search)
     }
-  }, [location.search]);
+  }, [location.search])
 
   // Fetch products from Supabase
   useEffect(() => {
-    fetchProducts();
-  }, []);
+    fetchProducts()
+  }, [])
 
   const fetchProducts = async () => {
     try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .order('created_at', { ascending: false });
+      setLoading(true)
+      const { data, error } = await supabase.from("products").select("*").order("created_at", { ascending: false })
 
-      if (error) throw error;
+      if (error) throw error
 
-      // Transform data to include display properties
-      const productsWithDisplayData: Product[] = (data || []).map(product => ({
+      const productsWithDisplayData: Product[] = (data || []).map((product) => ({
         ...product,
-        brand: extractBrandFromName(product.name),
-        originalPrice: product.price * 1.2, // Simulate original price for sale items
-        rating: 4.5 + Math.random() * 0.5, // Random rating between 4.5-5.0
-        reviewCount: Math.floor(Math.random() * 200) + 50, // Random review count
-        isOnSale: Math.random() > 0.7, // 30% chance of being on sale
-        category: Math.random() > 0.5 ? "femme" : "homme", // Random category
-      }));
+        brand: product.brand || "Autre", // Use actual brand column
+        isOnSale: product.stock_quantity > 0,
+        category: product.category,
+      }))
 
-      setAllProducts(productsWithDisplayData);
+      setAllProducts(productsWithDisplayData)
+
+      const uniqueBrands = Array.from(
+        new Set(productsWithDisplayData.map((product) => product.brand).filter((brand) => brand && brand !== "Autre")),
+      ).sort()
+      setAvailableBrands(uniqueBrands)
     } catch (error) {
-      console.error('Error fetching products:', error);
+      console.error("Error fetching products:", error)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
-
-  const extractBrandFromName = (name: string): string => {
-    // Simple brand extraction logic - in a real app, this would be more sophisticated
-    const brandKeywords = ["Chanel", "Dior", "Lancôme", "Yves Saint Laurent", "Giorgio Armani", "Carolina Herrera"];
-    for (const brand of brandKeywords) {
-      if (name.toLowerCase().includes(brand.toLowerCase())) {
-        return brand;
-      }
-    }
-    return "Autre";
-  };
-
-  // Filter products based on current filters
-  const filteredProducts = allProducts.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (product.brand && product.brand.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                         (product.description && product.description.toLowerCase().includes(searchTerm.toLowerCase()));
-    
-    const matchesCategory = selectedCategory === "tous" || product.category === selectedCategory;
-    
-    const matchesBrand = selectedBrands.length === 0 || (product.brand && selectedBrands.includes(product.brand));
-    
-    const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1];
-
-    return matchesSearch && matchesCategory && matchesBrand && matchesPrice;
-  });
-
-  // Sort products
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
-    switch (sortBy) {
-      case "price-low":
-        return a.price - b.price;
-      case "price-high":
-        return b.price - a.price;
-      case "rating":
-        return (b.rating || 0) - (a.rating || 0);
-      case "name":
-        return a.name.localeCompare(b.name);
-      default: // popularity
-        return (b.reviewCount || 0) - (a.reviewCount || 0);
-    }
-  });
+  }
 
   const handleBrandChange = (brand: string, checked: boolean) => {
     if (checked) {
-      setSelectedBrands([...selectedBrands, brand]);
+      setSelectedBrands([...selectedBrands, brand])
     } else {
-      setSelectedBrands(selectedBrands.filter(b => b !== brand));
+      setSelectedBrands(selectedBrands.filter((b) => b !== brand))
     }
-  };
+  }
+
+  const filteredAndSortedProducts = useMemo(() => {
+    const filtered = allProducts.filter((product) => {
+      // Search filter
+      const matchesSearch =
+        searchTerm === "" ||
+        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (product.brand && product.brand.toLowerCase().includes(searchTerm.toLowerCase()))
+
+      // Category filter
+      const matchesCategory = selectedCategory === "tous" || product.category === selectedCategory
+
+      // Brand filter
+      const matchesBrand = selectedBrands.length === 0 || (product.brand && selectedBrands.includes(product.brand))
+
+      // Price filter
+      const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1]
+
+      return matchesSearch && matchesCategory && matchesBrand && matchesPrice
+    })
+
+    // Apply sorting
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case "price-low":
+          return a.price - b.price
+        case "price-high":
+          return b.price - a.price
+        case "name":
+          return a.name.localeCompare(b.name)
+        default:
+          return 0
+      }
+    })
+
+    return filtered
+  }, [allProducts, searchTerm, selectedCategory, selectedBrands, priceRange, sortBy])
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <main className="container mx-auto px-4 py-8">
         {/* Page Header */}
         <div className="mb-8">
@@ -150,23 +141,16 @@ const Products = () => {
               Nos Parfums
             </span>
           </h1>
-          <p className="text-muted-foreground">
-            Découvrez notre collection complète de parfums authentiques
-          </p>
+          <p className="text-muted-foreground">Découvrez notre collection complète de parfums authentiques</p>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Filters Sidebar */}
-          <aside className={`lg:w-80 ${showFilters ? 'block' : 'hidden lg:block'}`}>
+          <aside className={`lg:w-80 ${showFilters ? "block" : "hidden lg:block"}`}>
             <div className="sticky top-24 space-y-6 bg-card p-6 rounded-lg border border-luxury-cream-dark">
               <div className="flex items-center justify-between">
                 <h3 className="font-semibold text-foreground">Filtres</h3>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowFilters(false)}
-                  className="lg:hidden"
-                >
+                <Button variant="ghost" size="sm" onClick={() => setShowFilters(false)} className="lg:hidden">
                   ✕
                 </Button>
               </div>
@@ -205,14 +189,16 @@ const Products = () => {
               <div className="space-y-2">
                 <Label>Marques</Label>
                 <div className="space-y-2 max-h-48 overflow-y-auto">
-                  {brands.filter(b => b !== "Toutes").map((brand) => (
+                  {availableBrands.map((brand) => (
                     <div key={brand} className="flex items-center space-x-2">
                       <Checkbox
                         id={brand}
                         checked={selectedBrands.includes(brand)}
                         onCheckedChange={(checked) => handleBrandChange(brand, checked as boolean)}
                       />
-                      <Label htmlFor={brand} className="text-sm">{brand}</Label>
+                      <Label htmlFor={brand} className="text-sm">
+                        {brand}
+                      </Label>
                     </div>
                   ))}
                 </div>
@@ -244,17 +230,13 @@ const Products = () => {
             {/* Toolbar */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
               <div className="flex items-center gap-4">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowFilters(true)}
-                  className="lg:hidden"
-                >
+                <Button variant="outline" size="sm" onClick={() => setShowFilters(true)} className="lg:hidden">
                   <SlidersHorizontal className="h-4 w-4 mr-2" />
                   Filtres
                 </Button>
                 <span className="text-sm text-muted-foreground">
-                  {sortedProducts.length} produit{sortedProducts.length > 1 ? 's' : ''} trouvé{sortedProducts.length > 1 ? 's' : ''}
+                  {filteredAndSortedProducts.length} produit{filteredAndSortedProducts.length > 1 ? "s" : ""} trouvé
+                  {filteredAndSortedProducts.length > 1 ? "s" : ""}
                 </span>
               </div>
 
@@ -265,10 +247,8 @@ const Products = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="popularity">Popularité</SelectItem>
                     <SelectItem value="price-low">Prix croissant</SelectItem>
                     <SelectItem value="price-high">Prix décroissant</SelectItem>
-                    <SelectItem value="rating">Mieux notés</SelectItem>
                     <SelectItem value="name">Nom A-Z</SelectItem>
                   </SelectContent>
                 </Select>
@@ -300,38 +280,38 @@ const Products = () => {
               <div className="flex items-center justify-center py-12">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-luxury-purple"></div>
               </div>
-            ) : sortedProducts.length > 0 ? (
-              <div className={
-                viewMode === "grid" 
-                  ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-                  : "space-y-4"
-              }>
-                {sortedProducts.map((product) => (
-                  <ProductCard 
-                    key={product.id} 
-                    id={product.id}
-                    name={product.name}
-                    brand={product.brand || "Autre"}
-                    price={product.price}
-                    originalPrice={product.originalPrice}
-                    image={product.image_url || "https://images.unsplash.com/photo-1541643600914-78b084683601?w=400&h=400&fit=crop&crop=center"}
-                    rating={product.rating || 4.5}
-                    reviewCount={product.reviewCount || 100}
-                    isOnSale={product.isOnSale}
-                    stock={product.stock_quantity}
-                  />
+            ) : filteredAndSortedProducts.length > 0 ? (
+              <div
+                className={
+                  viewMode === "grid"
+                    ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                    : "space-y-4"
+                }
+              >
+                {filteredAndSortedProducts.map((product) => (
+                 <ProductCard
+  key={product.id}
+  id={product.id}
+  name={product.name}
+  brand={product.brand || "Autre"}
+  price={product.price}
+  image={product.image_url ? product.image_url : "/placeholder.svg"} // Use placeholder from public folder
+  isOnSale={product.isOnSale}
+  stock={product.stock_quantity}
+/>
+
                 ))}
               </div>
             ) : (
               <div className="text-center py-12">
                 <p className="text-muted-foreground mb-4">Aucun produit trouvé avec ces critères.</p>
-                <Button 
+                <Button
                   variant="outline"
                   onClick={() => {
-                    setSearchTerm("");
-                    setSelectedCategory("tous");
-                    setSelectedBrands([]);
-                    setPriceRange([0, 30000]);
+                    setSearchTerm("")
+                    setSelectedCategory("tous")
+                    setSelectedBrands([])
+                    setPriceRange([0, 30000])
                   }}
                 >
                   Réinitialiser les filtres
@@ -344,7 +324,7 @@ const Products = () => {
 
       <Footer />
     </div>
-  );
-};
+  )
+}
 
-export default Products;
+export default Products

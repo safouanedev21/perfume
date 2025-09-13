@@ -1,91 +1,56 @@
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import ProductCard from "@/components/ui/product-card";
 import { ArrowRight } from "lucide-react";
-import { useLocation } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
 
-// Mock data - will be replaced with real data when backend is connected
-const featuredProducts = [
-  {
-    id: "1",
-    name: "La Vie Est Belle Intense",
-    brand: "Lancôme",
-    price: 15500,
-    originalPrice: 18900,
-    image: "https://images.unsplash.com/photo-1541643600914-78b084683601?w=400&h=400&fit=crop&crop=center",
-    rating: 4.8,
-    reviewCount: 245,
-    isOnSale: true,
-    stock: 12,
-    category: "femme"
-  },
-  {
-    id: "2", 
-    name: "Sauvage Elixir",
-    brand: "Dior",
-    price: 22000,
-    image: "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=400&h=400&fit=crop&crop=center",
-    rating: 4.9,
-    reviewCount: 189,
-    stock: 8,
-    category: "homme"
-  },
-  {
-    id: "3",
-    name: "Black Opium Intense",
-    brand: "Yves Saint Laurent",
-    price: 17800,
-    originalPrice: 21000,
-    image: "https://images.unsplash.com/photo-1563170351-be82bc888aa4?w=400&h=400&fit=crop&crop=center",
-    rating: 4.7,
-    reviewCount: 312,
-    isOnSale: true,
-    stock: 3,
-    category: "femme"
-  },
-  {
-    id: "4",
-    name: "Libre",
-    brand: "Yves Saint Laurent", 
-    price: 16200,
-    image: "https://images.unsplash.com/photo-1594736797933-d0ef7ba26ee2?w=400&h=400&fit=crop&crop=center",
-    rating: 4.6,
-    reviewCount: 178,
-    stock: 15,
-    category: "femme"
-  },
-  {
-    id: "5",
-    name: "Acqua di Giò Profondo",
-    brand: "Giorgio Armani",
-    price: 14500,
-    image: "https://images.unsplash.com/photo-1588405748880-12d1d2a59de8?w=400&h=400&fit=crop&crop=center",
-    rating: 4.5,
-    reviewCount: 156,
-    stock: 0,
-    category: "homme"
-  },
-  {
-    id: "6",
-    name: "Good Girl",
-    brand: "Carolina Herrera",
-    price: 18900,
-    originalPrice: 22500,
-    image: "https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=400&h=400&fit=crop&crop=center",
-    rating: 4.8,
-    reviewCount: 203,
-    isOnSale: true,
-    stock: 7,
-    category: "femme"
-  }
-];
+interface Product extends Tables<'products'> {
+  originalPrice?: number;
+  rating?: number;
+  reviewCount?: number;
+  isOnSale?: boolean;
+}
 
 const FeaturedProducts = () => {
-  const location = useLocation();
-  const params = new URLSearchParams(location.search);
-  const category = params.get("category");
-  const filteredProducts = category
-    ? featuredProducts.filter((product) => product.category === category)
-    : featuredProducts;
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const formattedProducts: Product[] = (data || []).map(p => ({
+        ...p,
+        // Ensure Base64 images are valid data URLs
+        image_url: p.image_url?.startsWith("data:image")
+          ? p.image_url
+          : p.image_url
+          ? `data:image/png;base64,${p.image_url}`
+          : undefined,
+        originalPrice: p.price * 1.2,
+        rating: 4.5 + Math.random() * 0.5,
+        reviewCount: Math.floor(Math.random() * 200) + 50,
+        isOnSale: Math.random() > 0.7,
+      }));
+
+      setProducts(formattedProducts);
+    } catch (err) {
+      console.error("Error fetching products:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <section className="py-16 bg-background">
@@ -103,15 +68,31 @@ const FeaturedProducts = () => {
         </div>
 
         {/* Products Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
-          {filteredProducts.map((product) => (
-            <ProductCard key={product.id} {...product} />
-          ))}
-        </div>
+        {loading ? (
+          <div className="flex justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-luxury-purple"></div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
+            {products.map(product => (
+            <ProductCard
+  key={product.id}
+  id={product.id}
+  name={product.name}
+  brand={product.brand || "Autre"}
+  price={product.price}
+  image={product.image_url ? product.image_url : "/placeholder.svg"} // Use placeholder from public folder
+  isOnSale={product.isOnSale}
+  stock={product.stock_quantity}
+/>
+
+            ))}
+          </div>
+        )}
 
         {/* View All Button */}
         <div className="text-center">
-          <Button 
+          <Button
             size="lg"
             variant="outline"
             className="border-luxury-purple text-luxury-purple hover:bg-luxury-purple hover:text-white group"

@@ -1,21 +1,22 @@
-import { Heart, ShoppingBag, Star } from "lucide-react";
+import { Heart, ShoppingBag } from "lucide-react";
 import { Button } from "./button";
 import { Badge } from "./badge";
 import { Card, CardContent } from "./card";
 import { useState } from "react";
+import { useCart } from "@/contexts/CartContext";
+import { useFavorites } from "@/contexts/FavouritesContext";
 
 interface ProductCardProps {
   id: string;
   name: string;
   brand: string;
   price: number;
-  originalPrice?: number;
   image: string;
-  rating: number;
-  reviewCount: number;
   isOnSale?: boolean;
   isWishlisted?: boolean;
   stock: number;
+  description?: string;
+  image_url?: string;
 }
 
 const ProductCard = ({ 
@@ -23,24 +24,47 @@ const ProductCard = ({
   name, 
   brand, 
   price, 
-  originalPrice, 
   image, 
-  rating, 
-  reviewCount, 
   isOnSale, 
   isWishlisted = false,
-  stock 
+  stock,
+  description,
+  image_url
 }: ProductCardProps) => {
-  const [wishlisted, setWishlisted] = useState(isWishlisted);
+  const { addToCart } = useCart();
+  const { addToFavorites, removeFromFavorites, isFavorite } = useFavorites();
   const [isHovered, setIsHovered] = useState(false);
 
+  const wishlisted = isFavorite(id);
+
   const toggleWishlist = () => {
-    setWishlisted(!wishlisted);
+    if (wishlisted) {
+      removeFromFavorites(id);
+    } else {
+      addToFavorites({
+        id,
+        name,
+        price,
+        image_url: image_url || image,
+        stock_quantity: stock,
+        description: description || '',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      });
+    }
   };
 
-  const addToCart = () => {
-    // Cart functionality will be implemented when backend is connected
-    console.log(`Adding product ${id} to cart`);
+  const handleAddToCart = () => {
+    addToCart({
+      id,
+      name,
+      price,
+      image_url: image_url || image,
+      stock_quantity: stock,
+      description: description || '',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    });
   };
 
   return (
@@ -61,11 +85,6 @@ const ProductCard = ({
 
         {/* Badges */}
         <div className="absolute top-3 left-3 flex flex-col gap-2">
-          {isOnSale && (
-            <Badge className="bg-luxury-gold text-luxury-purple-dark hover:bg-luxury-gold-light">
-              -25%
-            </Badge>
-          )}
           {stock < 5 && stock > 0 && (
             <Badge variant="destructive" className="text-xs">
               Stock limité
@@ -99,7 +118,7 @@ const ProductCard = ({
           isHovered && stock > 0 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
         }`}>
           <Button 
-            onClick={addToCart}
+            onClick={handleAddToCart}
             className="w-full bg-luxury-purple hover:bg-luxury-purple-light text-white shadow-lg"
             disabled={stock === 0}
           >
@@ -114,37 +133,15 @@ const ProductCard = ({
         <p className="text-sm text-luxury-gold font-medium mb-1">{brand}</p>
         
         {/* Product Name */}
-        <h3 className="font-semibold text-foreground line-clamp-2 min-h-[2.5rem] mb-2">
+        <h3 className="font-semibold text-foreground line-clamp-2 min-h-[2.5rem] mb-3">
           {name}
         </h3>
-
-        {/* Rating */}
-        <div className="flex items-center gap-1 mb-3">
-          <div className="flex items-center">
-            {[...Array(5)].map((_, i) => (
-              <Star 
-                key={i} 
-                className={`h-3 w-3 ${
-                  i < Math.floor(rating) 
-                    ? 'fill-luxury-gold text-luxury-gold' 
-                    : 'text-muted-foreground'
-                }`} 
-              />
-            ))}
-          </div>
-          <span className="text-xs text-muted-foreground">({reviewCount})</span>
-        </div>
 
         {/* Price */}
         <div className="flex items-center gap-2">
           <span className="text-lg font-bold text-luxury-purple">
             {price.toLocaleString()} DA
           </span>
-          {originalPrice && (
-            <span className="text-sm text-muted-foreground line-through">
-              {originalPrice.toLocaleString()} DA
-            </span>
-          )}
         </div>
       </CardContent>
     </Card>
