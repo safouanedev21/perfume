@@ -154,55 +154,58 @@ const AdminDashboard = () => {
               {recentProducts.length > 0 ? (
                 recentProducts.map((product) => (
                   <div
-                    key={product.id}
-                    className="flex items-center justify-between p-4 border rounded-lg dark:border-amber-500/20 dark:bg-purple-900/20"
-                  >
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-gray-100 dark:bg-purple-800/30 rounded-lg flex items-center justify-center">
-                        {product.image_url ? (
-                          <img
-                            src={product.image_url || "/placeholder.svg"}
-                            alt={product.name}
-                            className="w-full h-full object-cover rounded-lg"
-                          />
-                        ) : (
-                          <Package className="h-6 w-6 text-gray-400 dark:text-amber-400" />
-                        )}
-                      </div>
-                      <div>
-                        <h3 className="font-medium dark:text-amber-100">{product.name}</h3>
-                        <p className="text-sm text-gray-500 dark:text-amber-200/60">
-                          {product.price.toLocaleString()} DA
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Badge
-                        variant={product.stock_quantity < 10 ? "destructive" : "secondary"}
-                        className="dark:bg-amber-900/30 dark:text-amber-200 dark:border-amber-500/30"
-                      >
-                        Stock: {product.stock_quantity}
-                      </Badge>
-                      <div className="flex space-x-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => openEditDialog(product)}
-                          className="dark:hover:bg-purple-800/30 dark:text-amber-300 dark:hover:text-amber-100"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDelete(product.id)}
-                          className="dark:hover:bg-purple-800/30 dark:text-amber-300 dark:hover:text-amber-100"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
+  key={product.id}
+  className="flex items-center justify-between p-4 border rounded-lg dark:border-amber-500/20 dark:bg-purple-900/20"
+>
+  <div className="flex items-center space-x-4">
+    <div className="w-12 h-12 bg-gray-100 dark:bg-purple-800/30 rounded-lg flex items-center justify-center">
+      {product.image_url ? (
+        <img
+          src={product.image_url || "/placeholder.svg"}
+          alt={product.name}
+          className="w-full h-full object-cover rounded-lg"
+        />
+      ) : (
+        <Package className="h-6 w-6 text-gray-400 dark:text-amber-400" />
+      )}
+    </div>
+    <div>
+      <h3 className="font-medium dark:text-amber-100">{product.name}</h3>
+      <p className="text-sm text-gray-500 dark:text-amber-200/60">
+        {product.price.toLocaleString()} DA
+      </p>
+    </div>
+  </div>
+
+  {/* Scrollable actions on small screens, hidden scrollbar */}
+  <div className="flex items-center space-x-2 overflow-x-auto max-w-[120px] sm:max-w-none whitespace-nowrap scrollbar-none">
+    <Badge
+      variant={product.stock_quantity < 10 ? "destructive" : "secondary"}
+      className="dark:bg-amber-900/30 dark:text-amber-200 dark:border-amber-500/30"
+    >
+      Stock: {product.stock_quantity}
+    </Badge>
+    <div className="flex space-x-1">
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => openEditDialog(product)}
+        className="dark:hover:bg-purple-800/30 dark:text-amber-300 dark:hover:text-amber-100"
+      >
+        <Edit className="h-4 w-4" />
+      </Button>
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => handleDelete(product.id)}
+        className="dark:hover:bg-purple-800/30 dark:text-amber-300 dark:hover:text-amber-100"
+      >
+        <Trash2 className="h-4 w-4" />
+      </Button>
+    </div>
+  </div>
+</div>
+
                 ))
               ) : (
                 <div className="text-center py-8 text-gray-500 dark:text-amber-200/60">Aucun produit trouvé</div>

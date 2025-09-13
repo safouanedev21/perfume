@@ -3,7 +3,13 @@
 @tailwind utilities;
 
 /* Perfume E-commerce Design System - Luxury & Elegance */
-
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none;    /* Firefox */
+}
 @layer base {
   :root {
     --background: 45 15% 98%;

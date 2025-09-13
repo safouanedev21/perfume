@@ -141,8 +141,8 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
           </div>
         </div>
 
-        {/* Page content */}
-        <main className="p-6">
+        {/* Page content - Responsive padding */}
+        <main className="p-0 sm:p-4 md:p-6 lg:p-8">
           {children}
         </main>
       </div>
