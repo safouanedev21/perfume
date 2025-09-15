@@ -5,10 +5,36 @@ import heroImage from "@/assets/hero-perfumes.jpg";
 const HeroSection = () => {
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-luxury-cream via-background to-luxury-cream-dark">
+      {/* Custom animations inside the component */}
+      <style>
+        {`
+          @keyframes fadeInUp {
+            0% {
+              opacity: 0;
+              transform: translateY(40px);
+            }
+            100% {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+          @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+          }
+          .fade-in-up {
+            animation: fadeInUp 1s ease-out forwards;
+          }
+          .fade-in {
+            animation: fadeIn 1.2s ease-out forwards;
+          }
+        `}
+      </style>
+
       <div className="container mx-auto px-4 py-16 lg:py-24">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* === Text Content === */}
-          <div className="space-y-8 animate-fadeInUp">
+          <div className="space-y-8 fade-in-up">
             {/* Tagline */}
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-luxury-gold/10 border border-luxury-gold/20 backdrop-blur-sm shadow-sm">
               <Sparkles className="h-4 w-4 text-luxury-gold animate-pulse" />
@@ -75,7 +101,7 @@ const HeroSection = () => {
           </div>
 
           {/* === Hero Image === */}
-          <div className="relative animate-fadeIn">
+          <div className="relative fade-in">
             <div className="relative rounded-2xl overflow-hidden shadow-luxury group">
               <img
                 src={heroImage}

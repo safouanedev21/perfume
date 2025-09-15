@@ -21,7 +21,7 @@ const FavoritesPanel = () => {
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
-          <Heart className="h-5 w-5" />
+          <Heart className="h-5 w-5 bg-purple-950" />
           {getFavoritesCount() > 0 && (
             <Badge className="absolute -top-1 -right-1 h-5 w-5 p-2 text-xs bg-luxury-gold text-luxury-purple-dark">
               {getFavoritesCount()}
